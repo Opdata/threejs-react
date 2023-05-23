@@ -1,153 +1,202 @@
-import * as THREE from 'three';
-import { useRef } from 'react';
+// import * as THREE from 'three';
+// import { Canvas } from '@react-three/fiber';
+// import { useGLTF, OrbitControls } from '@react-three/drei';
+
+// function House(props) {
+//   const { nodes, materials } = useGLTF('/stelsi.glb');
+//   //   const { nodes, materials } = useGLTF('/house.glb');
+//   //   const { nodes: bananaNodes, materials: bananaMaterials } = useGLTF(
+//   //     '/banana-v1-transformed.glb'
+//   //   );
+//   //   console.log('materials : ', materials);
+//   //   console.log('bananaNodes : ', bananaNodes);
+
+//   console.log('nodes : ', nodes);
+//   const nodeList = Object.keys(nodes);
+
+//   nodeList.map((mesh) => {
+//     console.log('nodes[mesh] : ', nodes[mesh]);
+//     return (
+//       <mesh
+//         castShadow
+//         geometry={nodes[mesh].geometry}
+//         // material={materials.lambert1}
+//         material-roughness={1}
+//         {...props}
+//         dispose={null}
+//       ></mesh>
+//     );
+//   });
+
+//   return (
+//     <mesh
+//       castShadow
+//       geometry={
+//         nodes
+//           .StaticMeshActor_UAID_047C1610AA3B6D3601_1621541371_StaticMeshComponent0
+//           .geometry
+//       }
+//       material={materials.lambert1}
+//       material-roughness={1}
+//       {...props}
+//       dispose={null}
+//     >
+//       {/* <Decal
+//         position={[0, 0.04, 0.15]}
+//         rotation={[0, 0, 0]}
+//         scale={0.15}
+//         map={texture}
+//         map-anisotropy={16}
+//       /> */}
+//     </mesh>
+//   );
+// }
+// // TODO: useFrame, Decal;
+// function Box() {
+//   return (
+//     <mesh>
+//       <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
+//       <meshStandardMaterial attach="material" color="orange" />
+//     </mesh>
+//   );
+// }
+
+// const App = () => {
+//   return (
+//     <Canvas
+//       style={{ height: '800px' }}
+//       shadows
+//       camera={{ position: [2, 2, 2], fov: 75 }}
+//     >
+//       <color attach="background" args={['skyblue']} />
+//       <ambientLight intensity={0.5} />
+//       {/* <Box /> */}
+//       <House />
+//       <OrbitControls makeDefault />
+//     </Canvas>
+//   );
+// };
+// export default App;
+
+// import React, { Suspense } from 'react';
+// import { Canvas } from '@react-three/fiber';
+// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+// import { useLoader } from '@react-three/fiber';
+// import { OrbitControls, Html, Loader } from '@react-three/drei';
+
+// function Model({ url }) {
+//   const gltf = useLoader(GLTFLoader, url);
+//   console.log('gltf : ', gltf);
+//   return <primitive object={gltf.scene} />;
+// }
+
+// export default function App() {
+//   return (
+//     <Canvas style={{ height: '100vh', width: '100vw' }}>
+//       <ambientLight intensity={0.5} />
+//       <Suspense
+//         fallback={
+//           <Html center>
+//             <Loader />
+//           </Html>
+//         }
+//       >
+//         <Model url="/stelsi.glb" />
+//       </Suspense>
+//       <OrbitControls />
+//     </Canvas>
+//   );
+// }
+
+// import React from 'react';
+// import { Canvas } from '@react-three/fiber';
+// import { useGLTF } from '@react-three/drei';
+// import { OrbitControls } from '@react-three/drei';
+
+// const MyGLTFComponent = () => {
+//   const { nodes } = useGLTF('/house.glb');
+
+//   return (
+//     <>
+//       {Object.values(nodes).map((node, i) => (
+//         <mesh
+//           castShadow
+//           receiveShadow
+//           key={i}
+//           geometry={node.geometry}
+//           material={node.material}
+//           position={node.position}
+//         />
+//       ))}
+//     </>
+//   );
+// };
+
+// const App = () => {
+//   return (
+//     <Canvas
+//       style={{ height: '800px' }}
+//       camera={{ position: [0, 10, 10], fov: 100 }}
+//       shadows
+//     >
+//       <ambientLight />
+//       <directionalLight castShadow position={[2.5, 2.5, 2.5]} intensity={0.7} />
+//       <pointLight position={[10, 10, 10]} />
+//       <MyGLTFComponent />
+//       <OrbitControls makeDefault />
+//     </Canvas>
+//   );
+// };
+
+// export default App;
+
+// FIXME: 1000개 glb 렌더링 코드 및 카메라 최소 줌 인, 줌 아웃 설정, 모델 스케일 축소 적용
+import React from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PivotControls } from '@react-three/drei';
-import { Geometry, Base, Subtraction, Addition } from '@react-three/csg';
+import { useGLTF } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 
-import { memo } from 'react';
-import {
-  AccumulativeShadows,
-  RandomizedLight,
-  Environment as EnvironmentImpl,
-} from '@react-three/drei';
+const MyGLTFComponent = () => {
+  const { nodes } = useGLTF('/house_draco.glb');
+  const modelWidth = 5; // adjust this value based on the actual width of your models
 
-const box = new THREE.BoxGeometry();
-const cyl = new THREE.CylinderGeometry(1, 1, 2, 20);
-const tri = new THREE.CylinderGeometry(1, 1, 2, 3);
+  return (
+    <>
+      {Array.from({ length: 1000 }).map((_, i) =>
+        Object.values(nodes).map((node, j) => (
+          <mesh
+            // castShadow
+            // receiveShadow
+            key={`${i}-${j}`}
+            geometry={node.geometry}
+            material={node.material}
+            position={[
+              node.position.x + i * modelWidth,
+              node.position.y,
+              node.position.z,
+            ]}
+            scale={[0.5, 0.5, 0.5]} // 50% reduction in size
+          />
+        ))
+      )}
+    </>
+  );
+};
 
-export const Environment = memo(({ direction = [5, 5, 5] }) => (
-  <>
-    <directionalLight
-      position={direction}
-      intensity={0.5}
-      shadow-mapSize={1024}
-      castShadow
-    />
-    <directionalLight
-      position={[-5, 5, 5]}
-      intensity={0.1}
-      shadow-mapSize={128}
-      castShadow
-    />
-    <directionalLight
-      position={[-5, 5, -5]}
-      intensity={0.1}
-      shadow-mapSize={128}
-      castShadow
-    />
-    <directionalLight
-      position={[0, 5, 0]}
-      intensity={0.1}
-      shadow-mapSize={128}
-      castShadow
-    />
-    <AccumulativeShadows
-      frames={100}
-      alphaTest={0.85}
-      opacity={0.75}
-      scale={30}
-      position={[0, -1.5, 0]}
-    >
-      <RandomizedLight
-        amount={8}
-        radius={2.5}
-        ambient={0.5}
-        intensity={1}
-        position={direction}
-        bias={0.001}
-      />
-    </AccumulativeShadows>
-    <EnvironmentImpl preset="city" />
-  </>
-));
-
-export default function App() {
+const App = () => {
   return (
     <Canvas
       style={{ height: '800px' }}
-      shadows
-      camera={{ position: [-15, 10, 15], fov: 100 }}
+      camera={{ position: [0, 10, 10], fov: 100 }}
+      //   shadows
     >
-      <color attach="background" args={['skyblue']} />
-      <House position={[20, 20, 20]} />
-      <Environment />
-      <OrbitControls makeDefault />
+      <ambientLight />
+      <directionalLight castShadow position={[2.5, 2.5, 2.5]} intensity={0.7} />
+      <pointLight position={[10, 10, 10]} />
+      <MyGLTFComponent />
+      <OrbitControls minDistance={5} maxDistance={10} />
     </Canvas>
   );
-}
+};
 
-function House(props) {
-  const csg = useRef();
-  return (
-    <mesh receiveShadow castShadow {...props}>
-      <Geometry ref={csg} computeVertexNormals>
-        <Base name="base" geometry={box} scale={[3, 3, 3]} />
-        <Subtraction name="cavity" geometry={box} scale={[2.7, 2.7, 2.7]} />
-        <Addition
-          name="roof"
-          geometry={tri}
-          scale={[2.5, 1.5, 1.425]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, 2.2, 0]}
-        />
-        <Chimney scale={0.5} position={[-0.75, 3, 0.8]} />
-        <Window
-          position={[1.1, 2.5, 0]}
-          scale={0.6}
-          rotation={[0, Math.PI / 2, 0]}
-        />
-        <Window position={[0, 2.5, 1.5]} scale={0.6} rotation={[0, 0, 0]} />
-        <Window position={[0, 0.25, 1.5]} scale={1.25} />
-        <Window
-          rotation={[0, Math.PI / 2, 0]}
-          position={[1.425, 0.25, 0]}
-          scale={1.25}
-        />
-        <Door
-          rotation={[0, Math.PI / 2, 0]}
-          position={[-1.425, -0.45, 0]}
-          scale={[1, 0.9, 1]}
-        />
-      </Geometry>
-      <meshStandardMaterial envMapIntensity={0.25} />
-    </mesh>
-  );
-}
-
-const Door = (props) => (
-  <Subtraction {...props}>
-    <Geometry>
-      <Base geometry={box} scale={[1, 2, 1]} />
-      <Addition
-        geometry={cyl}
-        scale={0.5}
-        rotation={[Math.PI / 2, 0, 0]}
-        position={[0, 1, 0]}
-      />
-    </Geometry>
-  </Subtraction>
-);
-
-const Window = (props) => (
-  <Subtraction {...props}>
-    <Geometry>
-      <Base geometry={box} />
-      <Subtraction geometry={box} scale={[0.05, 1, 1]} />
-      <Subtraction geometry={box} scale={[1, 0.05, 1]} />
-    </Geometry>
-  </Subtraction>
-);
-
-const Chimney = (props) => (
-  <Addition name="chimney" {...props}>
-    <Geometry>
-      <Base name="base" geometry={box} scale={[1, 2, 1]} />
-      <Subtraction
-        name="hole"
-        geometry={box}
-        scale={[0.7, 2, 0.7]}
-        position={[0, 0.5, 0]}
-      />
-    </Geometry>
-  </Addition>
-);
+export default App;
